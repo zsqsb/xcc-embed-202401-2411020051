@@ -1,0 +1,13 @@
+# Keil MDK 编译中间文件
+*.hex
+*.elf
+*.axf
+*.o
+*.d
+建立/
+调试/
+*.uvgui*
+#STM32CubeIDE
+*/调试/
+*/发布/
+.metadata/
