@@ -1,13 +1,67 @@
-# Keil MDK 编译中间文件
+# =============================================
+# STM32CubeMX / Keil MDK 通用忽略规则
+# =============================================
+
+# Keil MDK 编译输出文件
 *.hex
 *.elf
 *.axf
 *.o
 *.d
-建立/
-调试/
+*.crf
+*.lnp
+*.map
+*.scvd
 *.uvgui*
-#STM32CubeIDE
-*/调试/
-*/发布/
+*.uvopt*
+*.tra
+*.dep
+
+# 编译临时文件夹
+build/
+obj/
+Listings/
+Objects/
+RTE/
+
+# STM32CubeIDE
+Debug/
+Release/
+*/Debug/
+*/Release/
 .metadata/
+.cproject
+.project
+.settings/
+
+# CubeMX 临时备份
+*.ioc.bak
+*.ioc~
+.MX/
+mxbackup/
+
+# OS 系统文件
+.DS_Store
+Thumbs.db
+
+# VSCode / IDE
+.vscode/
+.idea/
+
+# =============================
+# 忽略 STM32 HAL/LL 库驱动源码
+# =============================
+# 标准目录形式（库放在 Drivers/ 子文件夹时生效）
+Drivers/
+Middlewares/
+
+# 平铺形式（库文件直接放在实验文件夹内时生效，匹配 stm32f4xx_hal_* / ll_*）
+**/stm32f4xx_hal_*.c
+**/stm32f4xx_hal_*.h
+**/stm32f4xx_ll_*.c
+**/stm32f4xx_ll_*.h
+
+# 通用杂项
+*.log
+*.swp
+*~

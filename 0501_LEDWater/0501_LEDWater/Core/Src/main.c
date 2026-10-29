@@ -31,7 +31,8 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-
+#define LED_NUM        9        /* PF0~PF8, total 9 LEDs            */
+#define LED_DELAY_MS   200      /* moving speed (ms)                */
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -42,8 +43,13 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-uint8_t led_data = 0x01;
-uint8_t direction = 0;  //0×óÒÆ£¬1ÓÒÒÆ
+static uint8_t  led_index = 0;    /* currently lit LED, 0 = PF0       */
+static int8_t   led_step  = 1;    /* +1 move left, -1 move right      */
+static const uint16_t led_pin[LED_NUM] = {
+    GPIO_PIN_0, GPIO_PIN_1, GPIO_PIN_2, GPIO_PIN_3,
+    GPIO_PIN_4, GPIO_PIN_5, GPIO_PIN_6, GPIO_PIN_7,
+    GPIO_PIN_8
+};
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -88,7 +94,11 @@ int main(void)
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   /* USER CODE BEGIN 2 */
-
+  /* turn off all LEDs at start */
+  for (uint8_t i = 0; i < LED_NUM; i++)
+  {
+    HAL_GPIO_WritePin(GPIOF, led_pin[i], GPIO_PIN_SET);
+  }
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -98,27 +108,28 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-		GPIOF->ODR = ~led_data;   //µÍµçÆ½µãÁÁLED
-HAL_Delay(200);           //ÑÓÊ±£¬ÐÞ¸ÄÊý×Ö¿ÉÒÔµ÷ÕûËÙ¶È
+    /* light only the current LED, turn off the others */
+    for (uint8_t i = 0; i < LED_NUM; i++)
+    {
+      HAL_GPIO_WritePin(GPIOF, led_pin[i],
+                        (i == led_index) ? GPIO_PIN_RESET : GPIO_PIN_SET);
+    }
 
-if(direction == 0)
-{
-    led_data = led_data << 1;
-    if(led_data == 0x80)
+    HAL_Delay(LED_DELAY_MS);
+
+    /* move to next LED, bounce at both ends */
+    led_index += led_step;
+    if (led_index >= LED_NUM - 1)
     {
-        direction = 1;
+      led_index = LED_NUM - 1;
+      led_step = -1;
     }
-}
-else
-{
-    led_data = led_data >> 1;
-    if(led_data == 0x01)
+    else if (led_index == 0)
     {
-        direction = 0;
+      led_step = 1;
     }
-}
+    /* USER CODE END 3 */
   }
-  /* USER CODE END 3 */
 }
 
 /**
@@ -180,7 +191,7 @@ static void MX_GPIO_Init(void)
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOF, GPIO_PIN_0|GPIO_PIN_1|GPIO_PIN_2|GPIO_PIN_3
                           |GPIO_PIN_4|GPIO_PIN_5|GPIO_PIN_6|GPIO_PIN_7
-                          |GPIO_PIN_8, GPIO_PIN_RESET);
+                          |GPIO_PIN_8, GPIO_PIN_SET);
 
   /*Configure GPIO pins : PF0 PF1 PF2 PF3
                            PF4 PF5 PF6 PF7
@@ -193,42 +204,42 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOF, &GPIO_InitStruct);
 
-/*用户代码开始MX_GPIO_Init_2*/
+  /* USER CODE BEGIN MX_GPIO_Init_2 */
 
-/*用户代码结束MX_GPIO_Init_2*/
+  /* USER CODE END MX_GPIO_Init_2 */
 }
 
-/*用户代码开始4*/
+/* USER CODE BEGIN 4 */
 
-/*用户代码结束4*/
+/* USER CODE END 4 */
 
 /**
-*@brief 此功能在发生错误时执行。
-*@retval 无
+  * @brief  This function is executed in case of error occurrence.
+  * @retval None
   */
 void Error_Handler(void)
 {
-/*用户代码开始错误处理程序调试*/
-/*用户可以添加自己的实现来报告HAL错误返回状态*/
-__disable_irq()；
-while(1)
+  /* USER CODE BEGIN Error_Handler_Debug */
+  /* User can add his own implementation to report the HAL error return state */
+  __disable_irq();
+  while (1)
   {
   }
-/*用户代码结束错误处理程序调试*/
+  /* USER CODE END Error_Handler_Debug */
 }
 #ifdef USE_FULL_ASSERT
 /**
-*@brief 报告源文件的名称和源文件行号
-*出现assert_param错误。
-*@param file：指向源文件名的指针
-*@param 行：assert_param错误行源编号
-*@retval 无
+  * @brief  Reports the name of the source file and the source line number
+  *         where the assert_param error has occurred.
+  * @param  file: pointer to the source file name
+  * @param  line: assert_param error line source number
+  * @retval None
   */
-void assert_failed(uint8_t*文件，uint32_t行)
+void assert_failed(uint8_t *file, uint32_t line)
 {
-/*用户代码开始6*/
-/*用户可以添加自己的实现来报告文件名和行号，
-ex:printf("错误参数值：文件%s，第%d行\r\n"，文件，行)*/
-/*用户代码结束6*/
+  /* USER CODE BEGIN 6 */
+  /* User can add his own implementation to report the file name and line number,
+     ex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
+  /* USER CODE END 6 */
 }
-#endif/*USE_FULL_ASSERT*/
+#endif /* USE_FULL_ASSERT */
